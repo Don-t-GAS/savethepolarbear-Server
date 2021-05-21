@@ -1,5 +1,6 @@
 package donot.gas.back.auth;
 
+import donot.gas.back.service.CustomUserDetatilService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -22,11 +23,11 @@ public class JwtTokenProvider {
 
     // 토큰 유효시간 30일
     private long tokenValidTime = 30 * 60 * 2 * 24 * 30 * 1000L;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetatilService customUserDetatilService;
 
     @Autowired
-    public JwtTokenProvider(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public JwtTokenProvider(CustomUserDetatilService customUserDetatilService) {
+        this.customUserDetatilService = customUserDetatilService;
     }
 
     @PostConstruct
@@ -47,7 +48,7 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
+        UserDetails userDetails = customUserDetatilService.loadUserByUsername(this.getUserPk(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
