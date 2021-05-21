@@ -27,6 +27,7 @@ public class User implements UserDetails {
     private String password;
     private Long point;
     private String role;
+    private Integer discount;
 
     @Enumerated(EnumType.STRING)
     private Rank rank;
@@ -34,15 +35,13 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<History> historyList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Discount discount;
-
-    public User(String username, String loginId, String password, Long point, String role) {
+    public User(String username, String loginId, String password, Long point, String role, Integer discount) {
         this.username = username;
         this.loginId = loginId;
         this.password = password;
         this.point = point;
         this.role = role;
+        this.discount = discount;
     }
 
     @Override

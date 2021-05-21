@@ -2,7 +2,6 @@ package donot.gas.back.controller;
 
 import donot.gas.back.auth.JwtTokenProvider;
 import donot.gas.back.dto.*;
-import donot.gas.back.entity.Discount;
 import donot.gas.back.entity.History;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -38,7 +36,7 @@ public class UserController {
             if (userRepository.findByLoginId(user.get("loginId")).isPresent()) {
                 throw new IllegalArgumentException();
             }
-            User newUser = new User(user.get("username"), user.get("loginId"), passwordEncoder.encode(user.get("password")), 0L, "USER");
+            User newUser = new User(user.get("username"), user.get("loginId"), passwordEncoder.encode(user.get("password")), 0L, "USER", 5);
             userRepository.save(newUser);
 
             return ResponseEntity.ok(new UserDto(newUser));
@@ -114,7 +112,7 @@ public class UserController {
             username = user.getUsername();
             point = user.getPoint();
             rank = user.getRank();
-            discount = user.getDiscount().getPercent();
+            discount = user.getDiscount();
             historyList = user.getHistoryList().stream()
                     .map(history -> new UserHistoryDto(history))
                     .collect(toList());
