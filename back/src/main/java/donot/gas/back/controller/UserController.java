@@ -7,6 +7,7 @@ import donot.gas.back.dto.ResponseDto;
 import donot.gas.back.dto.UserDto;
 import donot.gas.back.entity.User;
 import donot.gas.back.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,17 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userRepository = userRepository;
-    }
 
     // 회원가입
     @PostMapping("/join")
@@ -50,8 +45,6 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> user) throws Exception {
-        System.out.println(user);
-        System.out.println(userRepository.findByLoginId(user.get("loginId")));
         User member = userRepository.findByLoginId(user.get("loginId"))
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
         if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
@@ -65,6 +58,7 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // 모든 User 정보
     @GetMapping("/api/all")
     public ResponseEntity<?> findAll(HttpServletRequest request) {
         List<User> userList = userRepository.findAll();

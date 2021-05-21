@@ -10,4 +10,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User save(User user);
     Optional<User> findByLoginId(String loginId);
     List<User> findAll();
+
+
 }
