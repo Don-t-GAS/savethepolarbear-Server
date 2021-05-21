@@ -1,16 +1,17 @@
 package donot.gas.back.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
-public class History {
+@Table(name = "orders")
+public class Order {
     @Id @GeneratedValue
-    @Column(name = "history_id")
+    @Column(name = "order_id")
     private Long id;
+
     private String company;
     private String kinds;
     private String model;
@@ -20,8 +21,18 @@ public class History {
     @JoinColumn(name = "user_id")
     private User user;
 
+    protected Order() {
+    }
+
+    public Order(String company, String kinds, String model, Integer grade) {
+        this.company = company;
+        this.kinds = kinds;
+        this.model = model;
+        this.grade = grade;
+    }
+
     public void setUser(User user) {
         this.user = user;
-        user.getHistoryList().add(this);
+        user.getOrderList().add(this);
     }
 }
