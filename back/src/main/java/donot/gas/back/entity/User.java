@@ -29,20 +29,20 @@ public class User implements UserDetails {
     private String role;
     @Enumerated(EnumType.STRING)
     private Rank rank;
+    private Integer discount;
 
-    public User(String username, String loginId, String password, Long point, String role) {
+    public User(String username, String loginId, String password, Long point, String role, Rank rank, Integer discount) {
         this.username = username;
         this.loginId = loginId;
         this.password = password;
         this.point = point;
         this.role = role;
+        this.rank = rank;
+        this.discount = discount;
     }
 
     @OneToMany(mappedBy = "user")
     private List<History> historyList = new ArrayList<>();
-
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Discount discount;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
