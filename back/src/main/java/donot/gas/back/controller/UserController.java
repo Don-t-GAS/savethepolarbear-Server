@@ -1,14 +1,15 @@
 package donot.gas.back.controller;
 
 import donot.gas.back.auth.JwtTokenProvider;
-import donot.gas.back.dto.ErrorDto;
-import donot.gas.back.dto.JwtDto;
-import donot.gas.back.dto.ResponseDto;
-import donot.gas.back.dto.UserDto;
+import donot.gas.back.dto.*;
+import donot.gas.back.entity.Discount;
+import donot.gas.back.entity.History;
+import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
-import donot.gas.back.repository.UserRepository;
+import donot.gas.back.repository.user.UserQueryRepository;
+import donot.gas.back.repository.user.UserRepository;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +18,18 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
+
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final UserQueryRepository userQueryRepository;
 
     // 회원가입
     @PostMapping("/join")
@@ -74,6 +80,61 @@ public class UserController {
                 .data(userDtoList)
                 .build();
         return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/api/{loginId}")
+    public List<UserPageDto> findByLoginIdForUserPage(@PathVariable("loginId") String loginId) {
+        List<User> user = userQueryRepository.findByLoginId(loginId);
+        List<UserPageDto> result = user.stream()
+                .map(u -> new UserPageDto(u))
+                .collect(toList());
+        return result;
+    }
+
+//    @GetMapping("/api/{loginId}")
+//    public List<User> findByLoginIdForUserPage(@PathVariable(value = "loginId") String loginId) {
+//        List<User> user = userQueryRepository.findByLoginId(loginId);
+//        return user;
+//    }
+
+    /**
+     * @Data 항목
+     */
+
+    @Data
+    static class UserPageDto {
+
+        private String username;
+        private Long point;
+        private Rank rank;
+        private Integer discount;
+        private List<UserHistoryDto> historyList; // OneToMany 컬럼 주의!
+
+        public UserPageDto(User user) {
+            username = user.getUsername();
+            point = user.getPoint();
+            rank = user.getRank();
+            discount = user.getDiscount().getPercent();
+            historyList = user.getHistoryList().stream()
+                    .map(history -> new UserHistoryDto(history))
+                    .collect(toList());
+        }
+    }
+
+    @Data
+    static class UserHistoryDto {
+
+        private String company;
+        private String kinds;
+        private String model;
+        private Integer grade;
+
+        public UserHistoryDto(History history) {
+            company = history.getCompany();
+            kinds = history.getKinds();
+            model = history.getModel();
+            grade = history.getGrade();
+        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

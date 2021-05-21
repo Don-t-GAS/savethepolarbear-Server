@@ -1,4 +1,4 @@
-package donot.gas.back.repository;
+package donot.gas.back.repository.user;
 
 import donot.gas.back.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +10,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User save(User user);
     Optional<User> findByLoginId(String loginId);
     List<User> findAll();
-
-
 }
