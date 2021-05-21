@@ -1,11 +1,12 @@
 package donot.gas.back.entity;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
-@Getter
+@Getter @Setter
 @Table(name = "orders")
 public class Order {
     @Id @GeneratedValue
@@ -16,6 +17,7 @@ public class Order {
     private String kinds;
     private String model;
     private Integer grade;
+    private Integer orderCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

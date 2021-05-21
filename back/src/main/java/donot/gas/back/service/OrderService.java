@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,8 +29,17 @@ public class OrderService {
         discountUpIfRankUp(user, newRank);
 
         Order order = new Order(company, kinds, model, grade);
-        orderRepository.save(order);
-        order.setUser(user);
+
+        List<Order> findOrderByModel = orderRepository.findOrderByModel(user.getId(), model);
+
+        if (findOrderByModel.isEmpty()) {
+            order.setOrderCount(1);
+            orderRepository.save(order);
+            order.setUser(user);
+        } else {
+            Order findOrder = findOrderByModel.get(0);
+            findOrder.setOrderCount(findOrder.getOrderCount() + 1);
+        }
     }
 
     public User findUser(String loginId) throws NoExistUserException {
