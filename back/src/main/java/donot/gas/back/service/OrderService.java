@@ -1,24 +1,35 @@
 package donot.gas.back.service;
 
 import donot.gas.back.dto.PointDto;
+import donot.gas.back.entity.Order;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
 import donot.gas.back.exception.user.NoExistUserException;
-import donot.gas.back.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import donot.gas.back.repository.OrderRepository;
+import donot.gas.back.repository.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-@Transactional
-public class PointService {
-    private final UserRepository userRepository;
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class OrderService {
 
-    @Autowired
-    public PointService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+
+    @Transactional
+    public void createOrder(String company, String kinds, String model, Integer grade, User user) {
+        increasePoint(user, grade);
+        Rank newRank = rankUpIfPointReach(user);
+        discountUpIfRankUp(user, newRank);
+
+        Order order = new Order(company, kinds, model, grade);
+        orderRepository.save(order);
+        order.setUser(user);
     }
 
     public User findUser(String loginId) throws NoExistUserException {
@@ -27,13 +38,14 @@ public class PointService {
         return user.get();
     }
 
-    public Long increasePoint(User user, Integer grade) {
+    @Transactional
+    public void increasePoint(User user, Integer grade) {
         Long newPoint = user.getPoint() + PointDto.getPoint(grade);
         user.setPoint(newPoint);
         userRepository.save(user);
-        return newPoint;
     }
 
+    @Transactional
     public Rank rankUpIfPointReach(User user) {
         if(user.getRank() == Rank.BRONZE && user.getPoint() >= 50) {
             user.setRank(Rank.SILVER);
@@ -48,6 +60,7 @@ public class PointService {
         return null;
     }
 
+    @Transactional
     public void discountUpIfRankUp(User user, Rank rank) {
         if(rank != null) {
             if(rank == Rank.SILVER) {
