@@ -17,7 +17,7 @@ public class UserQueryRepository {
     public List<User> findByLoginId(String loginId) {
         return em.createQuery(
                 "select distinct u from User u" +
-                        " join fetch u.historyList h" +
+                        " left join fetch u.orderList o" +
                         " where u.loginId=:loginId", User.class)
                 .setParameter("loginId", loginId)
                 .getResultList();

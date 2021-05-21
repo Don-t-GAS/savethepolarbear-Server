@@ -1,15 +1,11 @@
 package donot.gas.back.repository.history;
 
 import donot.gas.back.dto.CountDto;
-import donot.gas.back.entity.History;
-import donot.gas.back.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,8 +16,8 @@ public class HistoryJpaRepository {
         ArrayList<Long> cntList = new ArrayList<>();
         for(int i=1; i<=5; i++) {
             Long cnt = em.createQuery(
-                    "select COUNT(h.id) from History h" +
-                            " where h.user.id=:userId and h.grade=:grade", Long.class)
+                    "select COUNT(o.id) from Order o" +
+                            " where o.user.id=:userId and o.grade=:grade", Long.class)
                     .setParameter("userId", userId)
                     .setParameter("grade", i)
                     .getSingleResult();

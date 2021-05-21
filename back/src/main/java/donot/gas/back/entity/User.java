@@ -1,6 +1,5 @@
 package donot.gas.back.entity;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,7 +42,7 @@ public class User implements UserDetails {
     }
 
     @OneToMany(mappedBy = "user")
-    private List<History> historyList = new ArrayList<>();
+    private List<Order> orderList = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

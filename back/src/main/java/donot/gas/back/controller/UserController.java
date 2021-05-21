@@ -3,7 +3,7 @@ package donot.gas.back.controller;
 import donot.gas.back.auth.JwtTokenProvider;
 import donot.gas.back.exception.user.*;
 import donot.gas.back.dto.*;
-import donot.gas.back.entity.History;
+import donot.gas.back.entity.Order;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
 import donot.gas.back.repository.history.HistoryJpaRepository;
@@ -159,32 +159,34 @@ public class UserController {
         private Long point;
         private Rank rank;
         private Integer discount;
-        private List<UserHistoryDto> historyList; // OneToMany 컬럼 주의!
+        private List<UserOrderDto> orderList; // OneToMany 컬럼 주의!
 
         public UserPageDto(User user) {
             username = user.getUsername();
             point = user.getPoint();
             rank = user.getRank();
             discount = user.getDiscount();
-            historyList = user.getHistoryList().stream()
-                    .map(history -> new UserHistoryDto(history))
+            orderList = user.getOrderList().stream()
+                    .map(order -> new UserOrderDto(order))
                     .collect(toList());
         }
     }
 
     @Data
-    static class UserHistoryDto {
+    static class UserOrderDto {
 
         private String company;
         private String kinds;
         private String model;
         private Integer grade;
+        private Integer orderCount;
 
-        public UserHistoryDto(History history) {
-            company = history.getCompany();
-            kinds = history.getKinds();
-            model = history.getModel();
-            grade = history.getGrade();
+        public UserOrderDto(Order order) {
+            company = order.getCompany();
+            kinds = order.getKinds();
+            model = order.getModel();
+            grade = order.getGrade();
+            orderCount = order.getOrderCount();
         }
     }
 }
