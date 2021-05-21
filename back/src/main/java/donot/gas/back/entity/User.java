@@ -31,18 +31,20 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Rank rank;
+    private Integer discount;
 
-    @OneToMany(mappedBy = "user")
-    private List<History> historyList = new ArrayList<>();
-
-    public User(String username, String loginId, String password, Long point, String role, Integer discount) {
+    public User(String username, String loginId, String password, Long point, String role, Rank rank, Integer discount) {
         this.username = username;
         this.loginId = loginId;
         this.password = password;
         this.point = point;
         this.role = role;
+        this.rank = rank;
         this.discount = discount;
     }
+
+    @OneToMany(mappedBy = "user")
+    private List<History> historyList = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
