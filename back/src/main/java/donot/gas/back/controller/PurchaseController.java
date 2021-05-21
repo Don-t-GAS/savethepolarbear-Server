@@ -1,25 +1,22 @@
 package donot.gas.back.controller;
 
 import donot.gas.back.auth.JwtTokenProvider;
-import donot.gas.back.dto.PointDto;
+import donot.gas.back.dto.ErrorDto;
 import donot.gas.back.dto.PurchaseDto;
 import donot.gas.back.dto.ResponseDto;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
-import donot.gas.back.exception.user.NoExistUserException;
-import donot.gas.back.repository.UserRepository;
+import donot.gas.back.exception.user.*;
 import donot.gas.back.service.PointService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.Optional;
 
 @RestController
 public class PurchaseController {
@@ -49,5 +46,16 @@ public class PurchaseController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @ExceptionHandler({
+            NoExistUserException.class,
+    })
+    public ResponseEntity<?> handleBadRequest(Exception e) {
+        System.err.println(e.getClass());
+        ErrorDto error = ErrorDto.builder()
+                .status(400)
+                .responseMessage(e.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
 
 }
