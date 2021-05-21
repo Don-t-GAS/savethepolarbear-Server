@@ -161,12 +161,14 @@ public class UserController {
         private String kinds;
         private String model;
         private Integer grade;
+        private Integer orderCount;
 
         public UserOrderDto(Order order) {
             company = order.getCompany();
             kinds = order.getKinds();
             model = order.getModel();
             grade = order.getGrade();
+            orderCount = order.getOrderCount();
         }
     }
 }
