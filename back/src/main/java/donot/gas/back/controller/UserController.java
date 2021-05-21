@@ -1,15 +1,15 @@
 package donot.gas.back.controller;
 
 import donot.gas.back.auth.JwtTokenProvider;
-import donot.gas.back.dto.ErrorDto;
-import donot.gas.back.dto.JwtDto;
-import donot.gas.back.dto.ResponseDto;
-import donot.gas.back.dto.UserDto;
+import donot.gas.back.exception.user.*;
+import donot.gas.back.dto.*;
+import donot.gas.back.entity.History;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
-import donot.gas.back.exception.user.*;
-import donot.gas.back.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import donot.gas.back.repository.user.UserQueryRepository;
+import donot.gas.back.repository.user.UserRepository;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -19,18 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.*;
+
 @RestController
+@RequiredArgsConstructor
 public class UserController {
+
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserController(PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userRepository = userRepository;
-    }
+    private final UserQueryRepository userQueryRepository;
 
     // 회원가입
     @PostMapping("/join")
@@ -41,7 +39,8 @@ public class UserController {
         if (user.get("username").isEmpty() || user.get("username").isBlank()) {
             throw new UsernameValidationException();
         }
-        if (8 > user.get("loginId").length() || user.get("loginId").isEmpty() || user.get("loginId").isBlank() || user.get("loginId").contains(" ")) {
+        if (8 > user.get("loginId").length() || user.get("loginId").isEmpty() || user.get("loginId").
+            isBlank() || user.get("loginId").contains(" ")) {
             throw new LoginIdValidationException();
         }
         if (8 > user.get("password").length() || user.get("password").isEmpty() || user.get("password").isBlank() || user.get("password").contains(" ")) {
@@ -87,6 +86,7 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // 모든 User 정보
     @GetMapping("/api/all")
     public ResponseEntity<?> findAll(HttpServletRequest request) {
         List<User> userList = userRepository.findAll();
@@ -121,4 +121,53 @@ public class UserController {
                 .build();
         return ResponseEntity.badRequest().body(error);
     }
+  @GetMapping("/api/{loginId}")
+    public List<UserPageDto> findByLoginIdForUserPage(@PathVariable("loginId") String loginId) {
+        List<User> user = userQueryRepository.findByLoginId(loginId);
+        List<UserPageDto> result = user.stream()
+                .map(u -> new UserPageDto(u))
+                .collect(toList());
+        return result;
+    }
+
+    /**
+     * @Data 항목
+     */
+
+    @Data
+    static class UserPageDto {
+
+        private String username;
+        private Long point;
+        private Rank rank;
+        private Integer discount;
+        private List<UserHistoryDto> historyList; // OneToMany 컬럼 주의!
+
+        public UserPageDto(User user) {
+            username = user.getUsername();
+            point = user.getPoint();
+            rank = user.getRank();
+            discount = user.getDiscount();
+            historyList = user.getHistoryList().stream()
+                    .map(history -> new UserHistoryDto(history))
+                    .collect(toList());
+        }
+    }
+
+    @Data
+    static class UserHistoryDto {
+
+        private String company;
+        private String kinds;
+        private String model;
+        private Integer grade;
+
+        public UserHistoryDto(History history) {
+            company = history.getCompany();
+            kinds = history.getKinds();
+            model = history.getModel();
+            grade = history.getGrade();
+        }
+    }
 }
+  

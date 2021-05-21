@@ -27,6 +27,8 @@ public class User implements UserDetails {
     private String password;
     private Long point;
     private String role;
+    private Integer discount;
+
     @Enumerated(EnumType.STRING)
     private Rank rank;
     private Integer discount;

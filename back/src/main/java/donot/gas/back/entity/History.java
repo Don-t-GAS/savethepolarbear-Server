@@ -1,5 +1,6 @@
 package donot.gas.back.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ public class History {
     private String kinds;
     private String model;
     private Integer grade;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
