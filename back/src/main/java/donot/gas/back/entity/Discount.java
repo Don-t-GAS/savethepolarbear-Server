@@ -5,8 +5,8 @@ import lombok.Getter;
 
 import javax.persistence.*;
 
-@Getter
 @Entity
+@Getter
 public class Discount {
     @Id @GeneratedValue
     @Column(name = "discount_id")
