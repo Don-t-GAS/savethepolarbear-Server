@@ -1,6 +1,7 @@
 package donot.gas.back.controller;
 
 import donot.gas.back.auth.JwtTokenProvider;
+import donot.gas.back.exception.user.*;
 import donot.gas.back.dto.*;
 import donot.gas.back.entity.History;
 import donot.gas.back.entity.Rank;
@@ -32,27 +33,50 @@ public class UserController {
     // 회원가입
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody Map<String, String> user) {
-        try {
-            if (userRepository.findByLoginId(user.get("loginId")).isPresent()) {
-                throw new IllegalArgumentException();
-            }
-            User newUser = new User(user.get("username"), user.get("loginId"), passwordEncoder.encode(user.get("password")), 0L, "USER", 5);
-            userRepository.save(newUser);
-
-            return ResponseEntity.ok(new UserDto(newUser));
-        } catch (IllegalArgumentException e) {
-            return (ResponseEntity<?>) ResponseEntity.badRequest();
+        if (user.get("loginId") == null || user.get("password") == null || user.get("username") == null) {
+            throw new NoArgException();
         }
-
+        if (user.get("username").isEmpty() || user.get("username").isBlank()) {
+            throw new UsernameValidationException();
+        }
+        if (8 > user.get("loginId").length() || user.get("loginId").isEmpty() || user.get("loginId").
+            isBlank() || user.get("loginId").contains(" ")) {
+            throw new LoginIdValidationException();
+        }
+        if (8 > user.get("password").length() || user.get("password").isEmpty() || user.get("password").isBlank() || user.get("password").contains(" ")) {
+            throw new PasswordValidationException();
+        }
+        if (userRepository.findByLoginId(user.get("loginId")).isPresent()) {
+            throw new ExistLoginIdException();
+        }
+        User newUser = new User(
+                user.get("username"),
+                user.get("loginId"),
+                passwordEncoder.encode(user.get("password")),
+                0L,
+                "USER",
+                Rank.BRONZE,
+                5);
+        userRepository.save(newUser);
+        ResponseDto responseDto = ResponseDto.builder()
+                .status(200)
+                .responseMessage("회원가입 성공")
+                .data(new UserDto(newUser))
+                .build();
+        return ResponseEntity.ok(responseDto);
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> user) throws Exception {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> user) {
+        if (user.get("loginId") == null || user.get("password") == null) {
+            throw new NoArgException();
+        }
         User member = userRepository.findByLoginId(user.get("loginId"))
-                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
+                .orElseThrow(NoExistUserException::new);
+
         if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+            throw new MismatchPasswordException();
         }
         ResponseDto responseDto = ResponseDto.builder()
                 .status(200)
@@ -80,7 +104,24 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/api/{loginId}")
+    @ExceptionHandler({
+            ExistLoginIdException.class,
+            NoExistUserException.class,
+            MismatchPasswordException.class,
+            LoginIdValidationException.class,
+            PasswordValidationException.class,
+            NoArgException.class,
+            UsernameValidationException.class
+    })
+    public ResponseEntity<?> handleBadRequest(Exception e) {
+        System.err.println(e.getClass());
+        ErrorDto error = ErrorDto.builder()
+                .status(400)
+                .responseMessage(e.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
+  @GetMapping("/api/{loginId}")
     public List<UserPageDto> findByLoginIdForUserPage(@PathVariable("loginId") String loginId) {
         List<User> user = userQueryRepository.findByLoginId(loginId);
         List<UserPageDto> result = user.stream()
@@ -88,12 +129,6 @@ public class UserController {
                 .collect(toList());
         return result;
     }
-
-//    @GetMapping("/api/{loginId}")
-//    public List<User> findByLoginIdForUserPage(@PathVariable(value = "loginId") String loginId) {
-//        List<User> user = userQueryRepository.findByLoginId(loginId);
-//        return user;
-//    }
 
     /**
      * @Data 항목
@@ -134,14 +169,5 @@ public class UserController {
             grade = history.getGrade();
         }
     }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> badRequest(Exception e) {
-        System.err.println(e.getClass());
-        ErrorDto error = ErrorDto.builder()
-                .status(400)
-                .responseMessage("잘못된 입력이 들어왔습니다.")
-                .build();
-        return ResponseEntity.badRequest().body(error);
-    }
 }
+  

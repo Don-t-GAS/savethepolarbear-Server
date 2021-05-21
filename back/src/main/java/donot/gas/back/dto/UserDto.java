@@ -1,8 +1,6 @@
 package donot.gas.back.dto;
 
 import donot.gas.back.entity.User;
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
