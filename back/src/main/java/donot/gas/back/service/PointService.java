@@ -4,7 +4,7 @@ import donot.gas.back.dto.PointDto;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
 import donot.gas.back.exception.user.NoExistUserException;
-import donot.gas.back.repository.UserRepository;
+import donot.gas.back.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

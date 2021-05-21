@@ -31,7 +31,6 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Rank rank;
-    private Integer discount;
 
     public User(String username, String loginId, String password, Long point, String role, Rank rank, Integer discount) {
         this.username = username;
