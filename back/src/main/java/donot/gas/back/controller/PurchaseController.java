@@ -1,12 +1,16 @@
 package donot.gas.back.controller;
 
 import donot.gas.back.auth.JwtTokenProvider;
+
+import donot.gas.back.dto.ErrorDto;
 import donot.gas.back.dto.PurchaseDto;
 import donot.gas.back.dto.ResponseDto;
 import donot.gas.back.entity.User;
 import donot.gas.back.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import donot.gas.back.exception.user.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +45,16 @@ public class PurchaseController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @ExceptionHandler({
+            NoExistUserException.class,
+    })
+    public ResponseEntity<?> handleBadRequest(Exception e) {
+        System.err.println(e.getClass());
+        ErrorDto error = ErrorDto.builder()
+                .status(400)
+                .responseMessage(e.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
 
 }

@@ -6,6 +6,7 @@ import donot.gas.back.dto.*;
 import donot.gas.back.entity.Order;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
+import donot.gas.back.repository.history.HistoryJpaRepository;
 import donot.gas.back.repository.user.UserQueryRepository;
 import donot.gas.back.repository.user.UserRepository;
 import lombok.Data;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.*;
 
@@ -29,6 +31,7 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final UserQueryRepository userQueryRepository;
+    private final HistoryJpaRepository historyJpaRepository;
 
     // 회원가입
     @PostMapping("/join")
@@ -87,19 +90,33 @@ public class UserController {
     }
 
     // 모든 User 정보
-    @GetMapping("/api/all")
-    public ResponseEntity<?> findAll(HttpServletRequest request) {
-        List<User> userList = userRepository.findAll();
-        List<UserDto> userDtoList = new ArrayList<>();
-        for (User user : userList) {
-            userDtoList.add(new UserDto(user));
-        }
+//    @GetMapping("/api/all")
+//    public ResponseEntity<?> findAll(HttpServletRequest request) {
+//        List<User> userList = userRepository.findAll();
+//        List<UserDto> userDtoList = new ArrayList<>();
+//        for (User user : userList) {
+//            userDtoList.add(new UserDto(user));
+//        }
+//
+//        System.out.println("사용자 : " + jwtTokenProvider.getUserPk(request.getHeader("X-AUTH-TOKEN")));
+//        ResponseDto responseDto = ResponseDto.builder()
+//                .status(200)
+//                .responseMessage("모든 회원 조회 성공")
+//                .data(userDtoList)
+//                .build();
+//        return ResponseEntity.ok(responseDto);
+//    }
 
-        System.out.println("사용자 : " + jwtTokenProvider.getUserPk(request.getHeader("X-AUTH-TOKEN")));
+    @GetMapping("/api/counts")
+    public ResponseEntity<?> getCounts(HttpServletRequest request) {
+        String loginId = jwtTokenProvider.getUserPk(request.getHeader("X-AUTH-TOKEN"));
+        Optional<User> user = userRepository.findByLoginId(loginId);
+        user.orElseThrow(NoExistUserException::new);
+        CountDto result = historyJpaRepository.getCountByGrade(user.get().getId());
         ResponseDto responseDto = ResponseDto.builder()
                 .status(200)
-                .responseMessage("모든 회원 조회 성공")
-                .data(userDtoList)
+                .responseMessage("등급별 갯수 조회 성공")
+                .data(result)
                 .build();
         return ResponseEntity.ok(responseDto);
     }
@@ -121,8 +138,9 @@ public class UserController {
                 .build();
         return ResponseEntity.badRequest().body(error);
     }
-  @GetMapping("/api/{loginId}")
-    public List<UserPageDto> findByLoginIdForUserPage(@PathVariable("loginId") String loginId) {
+  @GetMapping("/api/userpage")
+    public List<UserPageDto> findByLoginIdForUserPage(HttpServletRequest request) {
+        String loginId = jwtTokenProvider.getUserPk(request.getHeader("X-AUTH-TOKEN"));
         List<User> user = userQueryRepository.findByLoginId(loginId);
         List<UserPageDto> result = user.stream()
                 .map(u -> new UserPageDto(u))
