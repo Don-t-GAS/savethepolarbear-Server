@@ -29,6 +29,7 @@ public class User implements UserDetails {
     private Integer discount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "userRank")
     private Rank rank;
 
     public User(String username, String loginId, String password, Long point, String role, Rank rank, Integer discount) {
