@@ -8,9 +8,9 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString
 public class CountDto {
-    private final Long fisrtCnt;
-    private final Long secondCnt;
-    private final Long thirdCnt;
-    private final Long fourthCnt;
-    private final Long fivethCnt;
+    private final Integer fisrtCnt;
+    private final Integer secondCnt;
+    private final Integer thirdCnt;
+    private final Integer fourthCnt;
+    private final Integer fivethCnt;
 }
