@@ -5,7 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 ### 추가 ###
-application.properties
+.properties
 
 ### STS ###
 .apt_generated
