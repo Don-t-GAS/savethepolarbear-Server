@@ -4,8 +4,6 @@ import donot.gas.back.entity.Order;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import javax.swing.text.html.parser.Entity;
-
 @Data
 @RequiredArgsConstructor
 public class OrderDto {

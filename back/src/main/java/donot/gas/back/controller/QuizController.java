@@ -7,13 +7,13 @@ import donot.gas.back.entity.Quiz;
 import donot.gas.back.entity.Rank;
 import donot.gas.back.entity.User;
 import donot.gas.back.repository.QuizRepository;
-import donot.gas.back.repository.user.UserRepository;
 import donot.gas.back.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.PostConstruct;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
@@ -83,3 +83,4 @@ public class QuizController {
         }
     }
 }
+

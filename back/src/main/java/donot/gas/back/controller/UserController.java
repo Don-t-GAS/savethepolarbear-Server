@@ -42,7 +42,7 @@ public class UserController {
             throw new UsernameValidationException();
         }
         if (8 > user.get("loginId").length() || user.get("loginId").isEmpty() || user.get("loginId").
-            isBlank() || user.get("loginId").contains(" ")) {
+                isBlank() || user.get("loginId").contains(" ")) {
             throw new LoginIdValidationException();
         }
         if (8 > user.get("password").length() || user.get("password").isEmpty() || user.get("password").isBlank() || user.get("password").contains(" ")) {
@@ -119,7 +119,7 @@ public class UserController {
                 .build();
         return ResponseEntity.badRequest().body(error);
     }
-  @GetMapping("/api/userpage")
+    @GetMapping("/api/userpage")
     public List<UserPageDto> findByLoginIdForUserPage(HttpServletRequest request) {
         String loginId = jwtTokenProvider.getUserPk(request.getHeader("X-AUTH-TOKEN"));
         List<User> user = userQueryRepository.findByLoginId(loginId);
@@ -171,4 +171,3 @@ public class UserController {
         }
     }
 }
-  
